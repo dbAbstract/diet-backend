@@ -66,3 +66,7 @@ dist
 
 # Personal CLAUDE skills
 .claude/skills/explain-code/**
+
+# Prisma
+/src/generated/prisma
+.env

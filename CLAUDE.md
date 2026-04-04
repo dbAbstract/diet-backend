@@ -59,6 +59,7 @@ Macros {
   protein: number  // grams
   carbs: number    // grams
   fat: number      // grams
+  fibre: number    // grams
 }
 ```
 
