@@ -1,0 +1,18 @@
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  height      Float    // cm
+  dateOfBirth DateTime
+
+  // Goals (inlined — no benefit to a separate table for a single-user app)
+  targetCalories Float
+  targetProtein  Float // g
+  targetCarbs    Float // g
+  targetFat      Float // g
+
+  weightEntries WeightEntry[]
+  dailyLogs     DailyLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

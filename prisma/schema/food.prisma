@@ -1,0 +1,43 @@
+enum FoodSource {
+  CUSTOM
+  AI_GENERATED
+}
+
+model FoodItem {
+  id           String     @id @default(cuid())
+  name         String
+  servingSize  Float      // g or ml
+  servingLabel String     // e.g. "1 cup", "1 scoop"
+  source       FoodSource
+
+  // Macros (flattened — no benefit to a separate table)
+  kcal    Float
+  protein Float // g
+  carbs   Float // g
+  fat     Float // g
+  fiber   Float // g
+
+  recipeIngredients RecipeIngredient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Recipe {
+  id          String             @id @default(cuid())
+  name        String
+  ingredients RecipeIngredient[]
+  // macros are always computed from ingredients, never stored
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RecipeIngredient {
+  id         String   @id @default(cuid())
+  recipe     Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId   String
+  foodItem   FoodItem @relation(fields: [foodItemId], references: [id])
+  foodItemId String
+  quantity   Float    // number of servings
+}

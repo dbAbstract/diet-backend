@@ -1,0 +1,43 @@
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model DailyLog {
+  id      String      @id @default(cuid())
+  user    User        @relation(fields: [userId], references: [id])
+  userId  String
+  date    DateTime    @db.Date
+  entries MealEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+}
+
+model MealEntry {
+  id         String    @id @default(cuid())
+  dailyLog   DailyLog  @relation(fields: [dailyLogId], references: [id])
+  dailyLogId String
+  mealType   MealType
+  quantity   Float     // number of servings
+  notes      String?
+
+  // Exactly one of these will be set
+  foodItemId String?
+  recipeId   String?
+
+  // Macro snapshot at log time (flattened)
+  kcal    Float
+  protein Float // g
+  carbs   Float // g
+  fat     Float // g
+  fiber   Float // g
+
+  loggedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
