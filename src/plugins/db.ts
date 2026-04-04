@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin'
 import { PrismaNeon } from '@prisma/adapter-neon'
-import { PrismaClient } from '../generated/prisma/client'
+import { PrismaClient } from '../generated/prisma/client.js'
 
 export default fp(async (fastify) => {
   const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! })
