@@ -113,5 +113,34 @@ export function makeDailyLogService(
       if (!entry) throw new Error('NOT_FOUND')
       return logRepo.deleteEntry(entryId)
     },
+
+    async getDailySummary(dateStr: string) {
+      const user = await resolveUser()
+      const date = new Date(dateStr)
+      const log = await getOrCreateLog(user.id, date)
+
+      const totals = log.entries.reduce(
+        (acc, entry) => ({
+          kcal: acc.kcal + entry.kcal,
+          protein: acc.protein + entry.protein,
+          carbs: acc.carbs + entry.carbs,
+          fat: acc.fat + entry.fat,
+          fiber: acc.fiber + entry.fiber,
+        }),
+        { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 }
+      )
+
+      return {
+        date: dateStr,
+        totals,
+        targets: {
+          kcal: user.targetCalories,
+          protein: user.targetProtein,
+          carbs: user.targetCarbs,
+          fat: user.targetFat,
+        },
+        entries: log.entries,
+      }
+    },
   }
 }
