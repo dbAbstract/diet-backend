@@ -14,11 +14,12 @@ export function makeWeightService(weightRepo: WeightRepository, userRepo: UserRe
       return weightRepo.findAll(user.id)
     },
 
-    async logWeight(weight: number, date?: Date) {
+    async logWeight(weight: number, bodyFatPct?: number, date?: Date) {
       const user = await resolveUser()
       return weightRepo.create({
         userId: user.id,
         weight,
+        bodyFatPct,
         date: date ?? new Date(),
       })
     },

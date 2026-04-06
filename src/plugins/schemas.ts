@@ -103,7 +103,6 @@ export default fp(async (fastify) => {
       targets: {
         type: 'object',
         properties: {
-          kcal: { type: 'number' },
           protein: { type: 'number' },
           carbs: { type: 'number' },
           fat: { type: 'number' },
@@ -119,9 +118,11 @@ export default fp(async (fastify) => {
     properties: {
       id: { type: 'string' },
       name: { type: 'string' },
+      sex: { type: 'string', enum: ['MALE', 'FEMALE'] },
       height: { type: 'number' },
       dateOfBirth: { type: 'string', format: 'date-time' },
-      targetCalories: { type: 'number' },
+      targetWeightKg: { type: 'number' },
+      dailyDeficitKcal: { type: 'number' },
       targetProtein: { type: 'number' },
       targetCarbs: { type: 'number' },
       targetFat: { type: 'number' },
@@ -138,6 +139,7 @@ export default fp(async (fastify) => {
       userId: { type: 'string' },
       date: { type: 'string' },
       weight: { type: 'number' },
+      bodyFatPct: { type: 'number', nullable: true },
       createdAt: { type: 'string', format: 'date-time' },
       updatedAt: { type: 'string', format: 'date-time' },
     },

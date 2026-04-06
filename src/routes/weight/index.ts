@@ -37,6 +37,7 @@ const weight: FastifyPluginAsync = async (fastify) => {
         required: ['weight'],
         properties: {
           weight: { type: 'number', description: 'Weight in kg' },
+          bodyFatPct: { type: 'number', description: 'Body fat percentage — optional, log when available' },
           date: { type: 'string', format: 'date', description: 'ISO date — defaults to today if omitted' },
         },
       },
@@ -46,10 +47,11 @@ const weight: FastifyPluginAsync = async (fastify) => {
       },
     },
   }, async (request, reply) => {
-    const body = request.body as { weight: number; date?: string }
+    const body = request.body as { weight: number; bodyFatPct?: number; date?: string }
     try {
       const entry = await service.logWeight(
         body.weight,
+        body.bodyFatPct,
         body.date ? new Date(body.date) : undefined
       )
       return reply.status(201).send(entry)

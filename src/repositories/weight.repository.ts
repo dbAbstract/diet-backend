@@ -4,6 +4,7 @@ export type CreateWeightEntryInput = {
   userId: string
   date: Date
   weight: number
+  bodyFatPct?: number
 }
 
 export function makeWeightRepository(db: PrismaClient) {
@@ -12,6 +13,13 @@ export function makeWeightRepository(db: PrismaClient) {
       return db.weightEntry.findMany({
         where: { userId },
         orderBy: { date: 'desc' },
+      })
+    },
+
+    findInRange(userId: string, from: Date, to: Date) {
+      return db.weightEntry.findMany({
+        where: { userId, date: { gte: from, lte: to } },
+        orderBy: { date: 'asc' },
       })
     },
 
