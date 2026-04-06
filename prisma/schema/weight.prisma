@@ -3,7 +3,8 @@ model WeightEntry {
   user   User     @relation(fields: [userId], references: [id])
   userId String
   date   DateTime @db.Date
-  weight Float    // kg
+  weight      Float  // kg
+  bodyFatPct  Float? // %, optional — log when available
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
