@@ -8,13 +8,41 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
   const service = makeFoodItemService(repo)
 
   // GET /food-items?search=xxx
-  fastify.get('/', async (request, reply) => {
+  fastify.get('/', {
+    schema: {
+      tags: ['Food Items'],
+      summary: 'List all food items',
+      querystring: {
+        type: 'object',
+        properties: {
+          search: { type: 'string', description: 'Filter by name (case-insensitive)' },
+        },
+      },
+      response: {
+        200: { type: 'array', items: { $ref: 'FoodItem#' } },
+      },
+    },
+  }, async (request) => {
     const { search } = request.query as { search?: string }
     return service.listFoodItems(search)
   })
 
   // GET /food-items/:id
-  fastify.get('/:id', async (request, reply) => {
+  fastify.get('/:id', {
+    schema: {
+      tags: ['Food Items'],
+      summary: 'Get a food item by ID',
+      params: {
+        type: 'object',
+        properties: { id: { type: 'string' } },
+        required: ['id'],
+      },
+      response: {
+        200: { $ref: 'FoodItem#' },
+        404: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
     const { id } = request.params as { id: string }
     try {
       return await service.getFoodItem(id)
@@ -24,7 +52,30 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
   })
 
   // POST /food-items
-  fastify.post('/', async (request, reply) => {
+  fastify.post('/', {
+    schema: {
+      tags: ['Food Items'],
+      summary: 'Create a food item',
+      body: {
+        type: 'object',
+        required: ['name', 'servingSize', 'servingLabel', 'kcal', 'protein', 'carbs', 'fat', 'fiber'],
+        properties: {
+          name: { type: 'string' },
+          servingSize: { type: 'number', description: 'In grams or ml' },
+          servingLabel: { type: 'string', examples: ['100g', '1 cup', '1 scoop'] },
+          source: { type: 'string', enum: ['CUSTOM', 'AI_GENERATED'], default: 'CUSTOM' },
+          kcal: { type: 'number' },
+          protein: { type: 'number' },
+          carbs: { type: 'number' },
+          fat: { type: 'number' },
+          fiber: { type: 'number' },
+        },
+      },
+      response: {
+        201: { $ref: 'FoodItem#' },
+      },
+    },
+  }, async (request, reply) => {
     const body = request.body as {
       name: string
       servingSize: number
@@ -44,7 +95,34 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
   })
 
   // PATCH /food-items/:id
-  fastify.patch('/:id', async (request, reply) => {
+  fastify.patch('/:id', {
+    schema: {
+      tags: ['Food Items'],
+      summary: 'Update a food item',
+      params: {
+        type: 'object',
+        properties: { id: { type: 'string' } },
+        required: ['id'],
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          servingSize: { type: 'number' },
+          servingLabel: { type: 'string' },
+          kcal: { type: 'number' },
+          protein: { type: 'number' },
+          carbs: { type: 'number' },
+          fat: { type: 'number' },
+          fiber: { type: 'number' },
+        },
+      },
+      response: {
+        200: { $ref: 'FoodItem#' },
+        404: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
     const { id } = request.params as { id: string }
     const body = request.body as {
       name?: string
@@ -64,7 +142,21 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
   })
 
   // DELETE /food-items/:id
-  fastify.delete('/:id', async (request, reply) => {
+  fastify.delete('/:id', {
+    schema: {
+      tags: ['Food Items'],
+      summary: 'Delete a food item',
+      params: {
+        type: 'object',
+        properties: { id: { type: 'string' } },
+        required: ['id'],
+      },
+      response: {
+        204: { type: 'null', description: 'Deleted successfully' },
+        404: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
     const { id } = request.params as { id: string }
     try {
       await service.deleteFoodItem(id)

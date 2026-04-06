@@ -7,7 +7,16 @@ const user: FastifyPluginAsync = async (fastify) => {
   const service = makeUserService(repo)
 
   // GET /user
-  fastify.get('/', async (request, reply) => {
+  fastify.get('/', {
+    schema: {
+      tags: ['User'],
+      summary: 'Get the current user profile and goals',
+      response: {
+        200: { $ref: 'User#' },
+        404: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
     try {
       return await service.getUser()
     } catch {
@@ -16,7 +25,29 @@ const user: FastifyPluginAsync = async (fastify) => {
   })
 
   // POST /user
-  fastify.post('/', async (request, reply) => {
+  fastify.post('/', {
+    schema: {
+      tags: ['User'],
+      summary: 'Create the user profile (run once on setup)',
+      body: {
+        type: 'object',
+        required: ['name', 'height', 'dateOfBirth', 'targetCalories', 'targetProtein', 'targetCarbs', 'targetFat'],
+        properties: {
+          name: { type: 'string' },
+          height: { type: 'number', description: 'Height in cm' },
+          dateOfBirth: { type: 'string', format: 'date', description: 'ISO date e.g. 1990-01-01' },
+          targetCalories: { type: 'number' },
+          targetProtein: { type: 'number', description: 'In grams' },
+          targetCarbs: { type: 'number', description: 'In grams' },
+          targetFat: { type: 'number', description: 'In grams' },
+        },
+      },
+      response: {
+        201: { $ref: 'User#' },
+        409: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
     const body = request.body as {
       name: string
       height: number
@@ -41,7 +72,28 @@ const user: FastifyPluginAsync = async (fastify) => {
   })
 
   // PATCH /user
-  fastify.patch('/', async (request, reply) => {
+  fastify.patch('/', {
+    schema: {
+      tags: ['User'],
+      summary: 'Update user profile or goals',
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          height: { type: 'number' },
+          dateOfBirth: { type: 'string', format: 'date' },
+          targetCalories: { type: 'number' },
+          targetProtein: { type: 'number' },
+          targetCarbs: { type: 'number' },
+          targetFat: { type: 'number' },
+        },
+      },
+      response: {
+        200: { $ref: 'User#' },
+        404: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
     const body = request.body as {
       name?: string
       height?: number

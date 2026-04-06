@@ -2,6 +2,9 @@ import fp from 'fastify-plugin'
 
 export default fp(async (fastify) => {
   fastify.addHook('onRequest', async (request, reply) => {
+    const url = request.url
+    if (url.startsWith('/docs') || url.startsWith('/documentation')) return
+
     const apiKey = process.env.API_KEY
 
     if (!apiKey) {
