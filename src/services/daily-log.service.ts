@@ -134,7 +134,6 @@ export function makeDailyLogService(
         date: dateStr,
         totals,
         targets: {
-          // kcal target is dynamic (TDEE - dailyDeficitKcal) — computed by the budget service
           protein: user.targetProtein,
           carbs: user.targetCarbs,
           fat: user.targetFat,
