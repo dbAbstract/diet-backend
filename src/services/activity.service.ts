@@ -7,9 +7,10 @@ export function makeActivityService(
   activityRepo: ActivityRepository,
   userRepo: UserRepository,
   weightRepo: WeightRepository,
+  firebaseUid: string,
 ) {
   async function resolveUser() {
-    const user = await userRepo.findFirst()
+    const user = await userRepo.findByFirebaseUid(firebaseUid)
     if (!user) throw new Error('USER_NOT_FOUND')
     return user
   }
@@ -41,7 +42,6 @@ export function makeActivityService(
       return activityRepo.delete(id)
     },
 
-    // Returns the latest weight for use in the activity parser prompt
     async getLatestWeightKg(): Promise<number> {
       const user = await resolveUser()
       const entries = await weightRepo.findAll(user.id)

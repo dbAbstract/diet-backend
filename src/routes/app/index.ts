@@ -6,13 +6,10 @@ import { makeUserRepository } from '../../repositories/user.repository.js'
 import { makeWeekSummaryService } from '../../services/week-summary.service.js'
 
 const app: FastifyPluginAsync = async (fastify) => {
-  const service = makeWeekSummaryService(
-    makeWeekSummaryRepository(fastify.db),
-    makeHistoryRepository(fastify.db),
-    makeWeightRepository(fastify.db),
-    makeUserRepository(fastify.db),
-    fastify.ai
-  )
+  const weekSummaryRepo = makeWeekSummaryRepository(fastify.db)
+  const historyRepo = makeHistoryRepository(fastify.db)
+  const weightRepo = makeWeightRepository(fastify.db)
+  const userRepo = makeUserRepository(fastify.db)
 
   // GET /app/state — called on every app open
   fastify.get('/state', {
@@ -54,7 +51,7 @@ const app: FastifyPluginAsync = async (fastify) => {
     },
   }, async (request, reply) => {
     try {
-      return await service.getAppState()
+      return await makeWeekSummaryService(weekSummaryRepo, historyRepo, weightRepo, userRepo, fastify.ai, request.firebaseUid).getAppState()
     } catch (e: any) {
       if (e.message === 'USER_NOT_FOUND') {
         return reply.status(404).send({ error: 'User not found' })

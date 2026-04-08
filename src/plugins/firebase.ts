@@ -1,0 +1,20 @@
+import fp from 'fastify-plugin'
+import admin from 'firebase-admin'
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    firebase: admin.app.App
+  }
+}
+
+export default fp(async (fastify) => {
+  const app = admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+  })
+
+  fastify.decorate('firebase', app)
+})

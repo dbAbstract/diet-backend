@@ -40,10 +40,11 @@ export function makeWeekSummaryService(
   historyRepo: HistoryRepository,
   weightRepo: WeightRepository,
   userRepo: UserRepository,
-  ai: Anthropic
+  ai: Anthropic,
+  firebaseUid: string,
 ) {
   async function resolveUser() {
-    const user = await userRepo.findFirst()
+    const user = await userRepo.findByFirebaseUid(firebaseUid)
     if (!user) throw new Error('USER_NOT_FOUND')
     return user
   }
@@ -51,7 +52,7 @@ export function makeWeekSummaryService(
   // Returns the calorie target for the current week by checking the most recently
   // finalized WeekSummary. Falls back to TDEE calculation from user profile.
   async function resolveCurrentCalorieTarget(userId: string, latestWeightKg: number) {
-    const user = await userRepo.findFirst()
+    const user = await userRepo.findByFirebaseUid(firebaseUid)
     if (!user) throw new Error('USER_NOT_FOUND')
     const lastFinalized = await weekSummaryRepo.findLatestFinalized(userId)
     if (lastFinalized?.nextWeekTarget) return lastFinalized.nextWeekTarget

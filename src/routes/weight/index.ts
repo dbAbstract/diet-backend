@@ -4,10 +4,8 @@ import { makeUserRepository } from '../../repositories/user.repository.js'
 import { makeWeightService } from '../../services/weight.service.js'
 
 const weight: FastifyPluginAsync = async (fastify) => {
-  const service = makeWeightService(
-    makeWeightRepository(fastify.db),
-    makeUserRepository(fastify.db)
-  )
+  const weightRepo = makeWeightRepository(fastify.db)
+  const userRepo = makeUserRepository(fastify.db)
 
   // GET /weight?from=2026-01-01&to=2026-04-08
   fastify.get('/', {
@@ -32,6 +30,7 @@ const weight: FastifyPluginAsync = async (fastify) => {
     if ((from && !to) || (!from && to)) {
       return reply.status(400).send({ error: 'Provide both from and to, or neither' })
     }
+    const service = makeWeightService(weightRepo, userRepo, request.firebaseUid)
     try {
       return await service.listWeightEntries(
         from ? new Date(from) : undefined,
@@ -63,6 +62,7 @@ const weight: FastifyPluginAsync = async (fastify) => {
     },
   }, async (request, reply) => {
     const body = request.body as { weight: number; bodyFatPct?: number; date?: string }
+    const service = makeWeightService(weightRepo, userRepo, request.firebaseUid)
     try {
       const entry = await service.logWeight(
         body.weight,
@@ -91,6 +91,7 @@ const weight: FastifyPluginAsync = async (fastify) => {
     },
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
+    const service = makeWeightService(weightRepo, userRepo, request.firebaseUid)
     await service.deleteWeightEntry(id)
     return reply.status(204).send()
   })

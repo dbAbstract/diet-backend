@@ -6,11 +6,9 @@ import { makeWeightRepository } from '../../repositories/weight.repository.js'
 import { makeActivityService } from '../../services/activity.service.js'
 
 const activity: FastifyPluginAsync = async (fastify) => {
-  const service = makeActivityService(
-    makeActivityRepository(fastify.db),
-    makeUserRepository(fastify.db),
-    makeWeightRepository(fastify.db),
-  )
+  const activityRepo = makeActivityRepository(fastify.db)
+  const userRepo = makeUserRepository(fastify.db)
+  const weightRepo = makeWeightRepository(fastify.db)
 
   // GET /activity?from=&to=
   fastify.get('/', {
@@ -35,6 +33,7 @@ const activity: FastifyPluginAsync = async (fastify) => {
     if ((from && !to) || (!from && to)) {
       return reply.status(400).send({ error: 'Provide both from and to, or neither' })
     }
+    const service = makeActivityService(activityRepo, userRepo, weightRepo, request.firebaseUid)
     try {
       return await service.listActivityEntries(
         from ? new Date(from) : undefined,
@@ -73,6 +72,7 @@ const activity: FastifyPluginAsync = async (fastify) => {
       date?: string
       source?: ActivitySource
     }
+    const service = makeActivityService(activityRepo, userRepo, weightRepo, request.firebaseUid)
     try {
       const entry = await service.logActivity({
         ...body,
@@ -101,6 +101,7 @@ const activity: FastifyPluginAsync = async (fastify) => {
     },
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
+    const service = makeActivityService(activityRepo, userRepo, weightRepo, request.firebaseUid)
     await service.deleteActivityEntry(id)
     return reply.status(204).send()
   })

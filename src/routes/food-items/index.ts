@@ -6,7 +6,7 @@ import { makeFoodItemService } from '../../services/food-item.service.js'
 
 const foodItems: FastifyPluginAsync = async (fastify) => {
   const repo = makeFoodItemRepository(fastify.db)
-  const service = makeFoodItemService(repo, makeUserRepository(fastify.db))
+  const userRepo = makeUserRepository(fastify.db)
 
   // GET /food-items?search=xxx
   fastify.get('/', {
@@ -25,7 +25,7 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
     },
   }, async (request) => {
     const { search } = request.query as { search?: string }
-    return service.listFoodItems(search)
+    return makeFoodItemService(repo, userRepo, request.firebaseUid).listFoodItems(search)
   })
 
   // GET /food-items/recent?limit=10
@@ -47,7 +47,7 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
   }, async (request, reply) => {
     const { limit = 10 } = request.query as { limit?: number }
     try {
-      return await service.listRecentFoodItems(limit)
+      return await makeFoodItemService(repo, userRepo, request.firebaseUid).listRecentFoodItems(limit)
     } catch (e: any) {
       if (e.message === 'USER_NOT_FOUND') return reply.status(404).send({ error: 'User not found' })
       throw e
@@ -72,7 +72,7 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
     try {
-      return await service.getFoodItem(id)
+      return await makeFoodItemService(repo, userRepo, request.firebaseUid).getFoodItem(id)
     } catch {
       return reply.status(404).send({ error: 'Food item not found' })
     }
@@ -114,7 +114,7 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
       fat: number
       fiber: number
     }
-    const item = await service.createFoodItem({
+    const item = await makeFoodItemService(repo, userRepo, request.firebaseUid).createFoodItem({
       ...body,
       source: body.source ?? FoodSource.CUSTOM,
     })
@@ -162,7 +162,7 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
       fiber?: number
     }
     try {
-      return await service.updateFoodItem(id, body)
+      return await makeFoodItemService(repo, userRepo, request.firebaseUid).updateFoodItem(id, body)
     } catch {
       return reply.status(404).send({ error: 'Food item not found' })
     }
@@ -186,7 +186,7 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
     try {
-      await service.deleteFoodItem(id)
+      await makeFoodItemService(repo, userRepo, request.firebaseUid).deleteFoodItem(id)
       return reply.status(204).send()
     } catch {
       return reply.status(404).send({ error: 'Food item not found' })

@@ -32,10 +32,11 @@ function average(nums: number[]): number | null {
 export function makeHistoryService(
   historyRepo: HistoryRepository,
   weightRepo: WeightRepository,
-  userRepo: UserRepository
+  userRepo: UserRepository,
+  firebaseUid: string,
 ) {
   async function resolveUser() {
-    const user = await userRepo.findFirst()
+    const user = await userRepo.findByFirebaseUid(firebaseUid)
     if (!user) throw new Error('USER_NOT_FOUND')
     return user
   }

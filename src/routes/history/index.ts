@@ -11,14 +11,14 @@ const history: FastifyPluginAsync = async (fastify) => {
   const weightRepo = makeWeightRepository(fastify.db)
   const userRepo = makeUserRepository(fastify.db)
 
-  const service = makeHistoryService(historyRepo, weightRepo, userRepo)
-  const weekSummaryService = makeWeekSummaryService(
-    makeWeekSummaryRepository(fastify.db),
-    historyRepo,
-    weightRepo,
-    userRepo,
-    fastify.ai
-  )
+  const weekSummaryRepo = makeWeekSummaryRepository(fastify.db)
+
+  function makeService(firebaseUid: string) {
+    return makeHistoryService(historyRepo, weightRepo, userRepo, firebaseUid)
+  }
+  function makeWeekService(firebaseUid: string) {
+    return makeWeekSummaryService(weekSummaryRepo, historyRepo, weightRepo, userRepo, fastify.ai, firebaseUid)
+  }
 
   // GET /history/weeks?page=0&pageSize=10
   fastify.get('/weeks', {
@@ -49,7 +49,7 @@ const history: FastifyPluginAsync = async (fastify) => {
     },
   }, async (request) => {
     const { page = 0, pageSize = 10 } = request.query as { page?: number; pageSize?: number }
-    return service.listWeeks(page, pageSize)
+    return makeService(request.firebaseUid).listWeeks(page, pageSize)
   })
 
   // GET /history/weeks/:weekStart  (e.g. /history/weeks/2026-04-06)
@@ -105,7 +105,7 @@ const history: FastifyPluginAsync = async (fastify) => {
   }, async (request, reply) => {
     const { weekStart } = request.params as { weekStart: string }
     try {
-      return await service.getWeekSummary(weekStart)
+      return await makeService(request.firebaseUid).getWeekSummary(weekStart)
     } catch (e: any) {
       if (e.message === 'USER_NOT_FOUND') {
         return reply.status(404).send({ error: 'User not found' })
@@ -156,7 +156,7 @@ const history: FastifyPluginAsync = async (fastify) => {
   }, async (request, reply) => {
     const { weekStart } = request.params as { weekStart: string }
     try {
-      return await weekSummaryService.finalizeWeek(weekStart)
+      return await makeWeekService(request.firebaseUid).finalizeWeek(weekStart)
     } catch (e: any) {
       if (e.message === 'USER_NOT_FOUND') return reply.status(404).send({ error: 'User not found' })
       if (e.message === 'ALREADY_FINALIZED') return reply.status(400).send({ error: 'Week already finalized' })
@@ -183,7 +183,7 @@ const history: FastifyPluginAsync = async (fastify) => {
   }, async (request, reply) => {
     const { weekStart } = request.params as { weekStart: string }
     try {
-      return await weekSummaryService.generateInsight(weekStart)
+      return await makeWeekService(request.firebaseUid).generateInsight(weekStart)
     } catch (e: any) {
       if (e.message === 'USER_NOT_FOUND') return reply.status(404).send({ error: 'User not found' })
       if (e.message === 'WEEK_NOT_FOUND') return reply.status(404).send({ error: 'Week summary not found' })

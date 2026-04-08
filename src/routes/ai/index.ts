@@ -9,11 +9,9 @@ import { makeWeightRepository } from '../../repositories/weight.repository.js'
 const ai: FastifyPluginAsync = async (fastify) => {
   const service = makeMealParserService(fastify.ai)
   const activityParser = makeActivityParserService(fastify.ai)
-  const activityService = makeActivityService(
-    makeActivityRepository(fastify.db),
-    makeUserRepository(fastify.db),
-    makeWeightRepository(fastify.db),
-  )
+  const activityRepo = makeActivityRepository(fastify.db)
+  const userRepo = makeUserRepository(fastify.db)
+  const weightRepo = makeWeightRepository(fastify.db)
 
   // POST /ai/parse-meal
   fastify.post('/parse-meal', {
@@ -131,7 +129,7 @@ const ai: FastifyPluginAsync = async (fastify) => {
     }
 
     try {
-      const weightKg = await activityService.getLatestWeightKg()
+      const weightKg = await makeActivityService(activityRepo, userRepo, weightRepo, request.firebaseUid).getLatestWeightKg()
       const result = await activityParser.parseMessage(body.messages, weightKg)
       return reply.send(result)
     } catch (e: any) {

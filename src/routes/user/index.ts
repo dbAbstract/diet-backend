@@ -5,8 +5,7 @@ import { makeUserService } from '../../services/user.service.js'
 import { ACTIVITY_LEVEL_METADATA } from '../../services/tdee.service.js'
 
 const user: FastifyPluginAsync = async (fastify) => {
-  const repo = makeUserRepository(fastify.db)
-  const service = makeUserService(repo)
+  const userRepo = makeUserRepository(fastify.db)
 
   // GET /user/activity-levels — static metadata for onboarding UI
   fastify.get('/activity-levels', {
@@ -43,6 +42,7 @@ const user: FastifyPluginAsync = async (fastify) => {
       },
     },
   }, async (request, reply) => {
+    const service = makeUserService(userRepo, request.firebaseUid)
     try {
       return await service.getUser()
     } catch {
@@ -89,6 +89,7 @@ const user: FastifyPluginAsync = async (fastify) => {
       targetCarbs: number
       targetFat: number
     }
+    const service = makeUserService(userRepo, request.firebaseUid)
     try {
       const created = await service.createUser({
         ...body,
@@ -141,6 +142,7 @@ const user: FastifyPluginAsync = async (fastify) => {
       targetCarbs?: number
       targetFat?: number
     }
+    const service = makeUserService(userRepo, request.firebaseUid)
     try {
       return await service.updateUser({
         ...body,

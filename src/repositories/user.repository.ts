@@ -1,6 +1,7 @@
 import { PrismaClient, Sex, ActivityLevel } from '../generated/prisma/client.js'
 
 export type CreateUserInput = {
+  firebaseUid: string
   name: string
   sex: Sex
   height: number
@@ -13,12 +14,12 @@ export type CreateUserInput = {
   targetFat: number
 }
 
-export type UpdateUserInput = Partial<CreateUserInput>
+export type UpdateUserInput = Partial<Omit<CreateUserInput, 'firebaseUid'>>
 
 export function makeUserRepository(db: PrismaClient) {
   return {
-    findFirst() {
-      return db.user.findFirst()
+    findByFirebaseUid(firebaseUid: string) {
+      return db.user.findUnique({ where: { firebaseUid } })
     },
 
     create(data: CreateUserInput) {

@@ -1,9 +1,9 @@
 import { WeightRepository } from '../repositories/weight.repository.js'
 import { UserRepository } from '../repositories/user.repository.js'
 
-export function makeWeightService(weightRepo: WeightRepository, userRepo: UserRepository) {
+export function makeWeightService(weightRepo: WeightRepository, userRepo: UserRepository, firebaseUid: string) {
   async function resolveUser() {
-    const user = await userRepo.findFirst()
+    const user = await userRepo.findByFirebaseUid(firebaseUid)
     if (!user) throw new Error('NOT_FOUND')
     return user
   }

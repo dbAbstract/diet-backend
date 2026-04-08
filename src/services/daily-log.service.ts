@@ -54,9 +54,10 @@ export function makeDailyLogService(
   activityRepo: ActivityRepository,
   weekSummaryRepo: WeekSummaryRepository,
   weightRepo: WeightRepository,
+  firebaseUid: string,
 ) {
   async function resolveUser() {
-    const user = await userRepo.findFirst()
+    const user = await userRepo.findByFirebaseUid(firebaseUid)
     if (!user) throw new Error('USER_NOT_FOUND')
     return user
   }
