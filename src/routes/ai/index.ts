@@ -17,8 +17,8 @@ const ai: FastifyPluginAsync = async (fastify) => {
   fastify.post('/parse-meal', {
     schema: {
       tags: ['AI'],
-      summary: 'Parse a natural language meal description',
-      description: 'Send a conversation history. Returns either parsed macro data or a clarifying question. The client is responsible for maintaining message history across turns.',
+      summary: 'Parse a meal from text, image, or both',
+      description: 'Send a conversation history. User messages can include an optional base64 image (first turn only). Returns parsed macro data or a clarifying question. Client maintains message history across turns.',
       body: {
         type: 'object',
         required: ['messages'],
@@ -31,7 +31,9 @@ const ai: FastifyPluginAsync = async (fastify) => {
               required: ['role', 'content'],
               properties: {
                 role: { type: 'string', enum: ['user', 'assistant'] },
-                content: { type: 'string' },
+                content: { type: 'string', description: 'Text description — can be empty string if image is provided' },
+                image: { type: 'string', description: 'Base64-encoded image data, user messages only, first turn only' },
+                mimeType: { type: 'string', enum: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], description: 'Required when image is provided' },
               },
             },
           },
