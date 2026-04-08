@@ -95,20 +95,50 @@ export default fp(async (fastify) => {
   })
 
   fastify.addSchema({
+    $id: 'ActivityEntry',
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      userId: { type: 'string' },
+      date: { type: 'string' },
+      description: { type: 'string' },
+      kcalBurned: { type: 'number' },
+      source: { type: 'string', enum: ['AI_ESTIMATED', 'WHOOP', 'MANUAL'] },
+      createdAt: { type: 'string', format: 'date-time' },
+      updatedAt: { type: 'string', format: 'date-time' },
+    },
+  })
+
+  fastify.addSchema({
+    $id: 'ParsedActivity',
+    type: 'object',
+    properties: {
+      description: { type: 'string' },
+      durationMinutes: { type: 'number' },
+      kcalBurned: { type: 'number' },
+      confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+    },
+  })
+
+  fastify.addSchema({
     $id: 'DailySummary',
     type: 'object',
     properties: {
       date: { type: 'string' },
       totals: { $ref: 'Macros#' },
+      activityKcal: { type: 'number' },
       targets: {
         type: 'object',
         properties: {
+          kcal: { type: 'number' },
+          effectiveKcal: { type: 'number' },
           protein: { type: 'number' },
           carbs: { type: 'number' },
           fat: { type: 'number' },
         },
       },
       entries: { type: 'array', items: { $ref: 'MealEntry#' } },
+      activityEntries: { type: 'array', items: { $ref: 'ActivityEntry#' } },
     },
   })
 

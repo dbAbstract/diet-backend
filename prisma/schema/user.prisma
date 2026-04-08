@@ -12,9 +12,10 @@ model User {
   targetCarbs       Float  // g
   targetFat         Float  // g
 
-  weightEntries WeightEntry[]
-  dailyLogs     DailyLog[]
-  weekSummaries WeekSummary[]
+  weightEntries   WeightEntry[]
+  dailyLogs       DailyLog[]
+  weekSummaries   WeekSummary[]
+  activityEntries ActivityEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

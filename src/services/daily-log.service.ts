@@ -2,7 +2,11 @@ import { DailyLogRepository, UpdateMealEntryInput } from '../repositories/daily-
 import { FoodItemRepository } from '../repositories/food-item.repository.js'
 import { RecipeRepository } from '../repositories/recipe.repository.js'
 import { UserRepository } from '../repositories/user.repository.js'
+import { ActivityRepository } from '../repositories/activity.repository.js'
+import { WeekSummaryRepository } from '../repositories/week-summary.repository.js'
+import { WeightRepository } from '../repositories/weight.repository.js'
 import { MealType } from '../generated/prisma/client.js'
+import { calculateDailyCalorieTarget } from './tdee.service.js'
 
 export type LogMealInput = {
   mealType: MealType
@@ -46,7 +50,10 @@ export function makeDailyLogService(
   logRepo: DailyLogRepository,
   foodRepo: FoodItemRepository,
   recipeRepo: RecipeRepository,
-  userRepo: UserRepository
+  userRepo: UserRepository,
+  activityRepo: ActivityRepository,
+  weekSummaryRepo: WeekSummaryRepository,
+  weightRepo: WeightRepository,
 ) {
   async function resolveUser() {
     const user = await userRepo.findFirst()
@@ -117,7 +124,13 @@ export function makeDailyLogService(
     async getDailySummary(dateStr: string) {
       const user = await resolveUser()
       const date = new Date(dateStr)
-      const log = await getOrCreateLog(user.id, date)
+
+      const [log, activityEntries, weightEntries, lastFinalized] = await Promise.all([
+        getOrCreateLog(user.id, date),
+        activityRepo.findByDate(user.id, date),
+        weightRepo.findAll(user.id),
+        weekSummaryRepo.findLatestFinalized(user.id),
+      ])
 
       const totals = log.entries.reduce(
         (acc, entry) => ({
@@ -130,15 +143,25 @@ export function makeDailyLogService(
         { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 }
       )
 
+      const activityKcal = Math.round(activityEntries.reduce((sum, e) => sum + e.kcalBurned, 0))
+
+      const latestWeightKg = weightEntries[0]?.weight ?? 80
+      const baseKcalTarget = lastFinalized?.nextWeekTarget ?? calculateDailyCalorieTarget(user, latestWeightKg)
+      const effectiveKcalTarget = baseKcalTarget + activityKcal
+
       return {
         date: dateStr,
         totals,
+        activityKcal,
         targets: {
+          kcal: baseKcalTarget,
+          effectiveKcal: effectiveKcalTarget,
           protein: user.targetProtein,
           carbs: user.targetCarbs,
           fat: user.targetFat,
         },
         entries: log.entries,
+        activityEntries,
       }
     },
   }

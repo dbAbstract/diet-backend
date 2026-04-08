@@ -229,6 +229,10 @@ WeekSummary {
 | PATCH | `/logs/:date/entries/:entryId` | Update a meal entry |
 | DELETE | `/logs/:date/entries/:entryId` | Delete a meal entry |
 | GET | `/weight` | List weight entries (supports `?from=&to=` date range) |
+| GET | `/activity` | List activity entries (supports `?from=&to=` date range) |
+| POST | `/activity` | Log an activity entry manually |
+| DELETE | `/activity/:id` | Delete an activity entry |
+| POST | `/ai/parse-activity` | Multi-turn natural language activity parsing |
 | POST | `/weight` | Log a weight entry |
 | DELETE | `/weight/:id` | Delete a weight entry |
 | GET | `/history/weeks` | List weeks with data (paginated) |
@@ -287,8 +291,12 @@ _nothing currently in flight_
 ### Up Next
 _nothing — backlog clear, add next features here_
 
+### Recently Shipped
+- Activity logging via LLM chat (`POST /ai/parse-activity`, `POST /activity`) — daily calorie allowance = base target + activityKcal
+- `GET /logs/:date/summary` now includes `activityKcal`, `targets.kcal`, and `targets.effectiveKcal`
+
 ### Deferred
-- Activity logging via LLM chat — user describes a workout, LLM asks clarifying questions (distance, duration, effort), estimates kcal burned. Stored as `ActivityEntry` with `source: AI_ESTIMATED`. Whoop integration later replaces the estimate with real data (`source: WHOOP`). Daily calorie allowance = base TDEE + activity kcal logged that day.
+- Whoop API integration — replace `AI_ESTIMATED` activity entries with real strain/calorie data (`source: WHOOP`).
 - Multi-week weight trend for calorie target adjustment (reduce week-to-week noise sensitivity)
 - Auth (Clerk or Supabase)
 - Whoop API integration for activity data
