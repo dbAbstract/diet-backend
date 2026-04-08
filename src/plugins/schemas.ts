@@ -151,6 +151,7 @@ export default fp(async (fastify) => {
       sex: { type: 'string', enum: ['MALE', 'FEMALE'] },
       height: { type: 'number' },
       dateOfBirth: { type: 'string', format: 'date-time' },
+      activityLevel: { type: 'string', enum: ['SEDENTARY', 'LIGHTLY_ACTIVE'] },
       targetWeightKg: { type: 'number' },
       dailyDeficitKcal: { type: 'number' },
       targetProtein: { type: 'number' },

@@ -1,10 +1,11 @@
 model User {
-  id          String   @id @default(cuid())
-  name        String
-  sex         Sex
-  height      Float    // cm
-  dateOfBirth DateTime
+  id             String        @id @default(cuid())
+  name           String
+  sex            Sex
+  height         Float         // cm
+  dateOfBirth    DateTime
   targetWeightKg Float
+  activityLevel  ActivityLevel @default(SEDENTARY)
 
   // Goals
   dailyDeficitKcal Float  // daily deficit target in kcal (e.g. 400)
@@ -24,4 +25,9 @@ model User {
 enum Sex {
   MALE
   FEMALE
+}
+
+enum ActivityLevel {
+  SEDENTARY      // Desk job, car commute, minimal daily movement
+  LIGHTLY_ACTIVE // On feet regularly — retail, teaching, nursing, walking commute
 }

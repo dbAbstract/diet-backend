@@ -1,10 +1,11 @@
-import { PrismaClient, Sex } from '../generated/prisma/client.js'
+import { PrismaClient, Sex, ActivityLevel } from '../generated/prisma/client.js'
 
 export type CreateUserInput = {
   name: string
   sex: Sex
   height: number
   dateOfBirth: Date
+  activityLevel: ActivityLevel
   targetWeightKg: number
   dailyDeficitKcal: number
   targetProtein: number

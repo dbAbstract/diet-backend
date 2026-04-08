@@ -1,11 +1,36 @@
 import { FastifyPluginAsync } from 'fastify'
-import { Sex } from '../../generated/prisma/client.js'
+import { Sex, ActivityLevel } from '../../generated/prisma/client.js'
 import { makeUserRepository } from '../../repositories/user.repository.js'
 import { makeUserService } from '../../services/user.service.js'
+import { ACTIVITY_LEVEL_METADATA } from '../../services/tdee.service.js'
 
 const user: FastifyPluginAsync = async (fastify) => {
   const repo = makeUserRepository(fastify.db)
   const service = makeUserService(repo)
+
+  // GET /user/activity-levels — static metadata for onboarding UI
+  fastify.get('/activity-levels', {
+    schema: {
+      tags: ['User'],
+      summary: 'List activity levels with descriptions — use during onboarding to populate the selection screen',
+      response: {
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              level: { type: 'string', enum: ['SEDENTARY', 'LIGHTLY_ACTIVE'] },
+              label: { type: 'string' },
+              multiplier: { type: 'number' },
+              description: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  }, async () => {
+    return ACTIVITY_LEVEL_METADATA
+  })
 
   // GET /user
   fastify.get('/', {
@@ -32,12 +57,13 @@ const user: FastifyPluginAsync = async (fastify) => {
       summary: 'Create the user profile (run once on setup)',
       body: {
         type: 'object',
-        required: ['name', 'sex', 'height', 'dateOfBirth', 'targetWeightKg', 'dailyDeficitKcal', 'targetProtein', 'targetCarbs', 'targetFat'],
+        required: ['name', 'sex', 'height', 'dateOfBirth', 'activityLevel', 'targetWeightKg', 'dailyDeficitKcal', 'targetProtein', 'targetCarbs', 'targetFat'],
         properties: {
           name: { type: 'string' },
           sex: { type: 'string', enum: ['MALE', 'FEMALE'] },
           height: { type: 'number', description: 'Height in cm' },
           dateOfBirth: { type: 'string', format: 'date', description: 'ISO date e.g. 1990-01-01' },
+          activityLevel: { type: 'string', enum: ['SEDENTARY', 'LIGHTLY_ACTIVE'], description: 'Your baseline daily activity level — see GET /user/activity-levels' },
           targetWeightKg: { type: 'number', description: 'Goal weight in kg' },
           dailyDeficitKcal: { type: 'number', description: 'Daily calorie deficit target (e.g. 400)' },
           targetProtein: { type: 'number', description: 'In grams' },
@@ -56,6 +82,7 @@ const user: FastifyPluginAsync = async (fastify) => {
       sex: Sex
       height: number
       dateOfBirth: string
+      activityLevel: ActivityLevel
       targetWeightKg: number
       dailyDeficitKcal: number
       targetProtein: number
@@ -88,6 +115,7 @@ const user: FastifyPluginAsync = async (fastify) => {
           sex: { type: 'string', enum: ['MALE', 'FEMALE'] },
           height: { type: 'number' },
           dateOfBirth: { type: 'string', format: 'date' },
+          activityLevel: { type: 'string', enum: ['SEDENTARY', 'LIGHTLY_ACTIVE'] },
           targetWeightKg: { type: 'number' },
           dailyDeficitKcal: { type: 'number' },
           targetProtein: { type: 'number' },
@@ -106,6 +134,7 @@ const user: FastifyPluginAsync = async (fastify) => {
       sex?: Sex
       height?: number
       dateOfBirth?: string
+      activityLevel?: ActivityLevel
       targetWeightKg?: number
       dailyDeficitKcal?: number
       targetProtein?: number
