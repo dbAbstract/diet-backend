@@ -298,6 +298,7 @@ _nothing — backlog clear, add next features here_
 ### Recently Shipped
 - Activity logging via LLM chat (`POST /ai/parse-activity`, `POST /activity`) — daily calorie allowance = base target + activityKcal
 - `GET /logs/:date/summary` now includes `activityKcal`, `targets.kcal`, and `targets.effectiveKcal`
+- Meal photo recognition included in the chat UX
 
 ### Deferred
 - Whoop API integration — replace `AI_ESTIMATED` activity entries with real strain/calorie data (`source: WHOOP`).
@@ -305,6 +306,5 @@ _nothing — backlog clear, add next features here_
 - Auth (Clerk or Supabase)
 - Whoop API integration for activity data
 - Barcode scanning
-- Meal photo recognition
 - Personal food library management screen
 - Profile/Settings screen
