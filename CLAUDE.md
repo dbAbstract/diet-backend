@@ -29,7 +29,7 @@ Previously, the developer logged meals by pasting food data into a ChatGPT proje
 | AI | Anthropic API (claude-sonnet-4-6) |
 | API Docs | Swagger UI via `@fastify/swagger` at `/documentation` |
 | Hosting | MacBook Pro M4 + Cloudflare Tunnel |
-| Auth | Deferred — single hardcoded user for MVP |
+| Auth | Firebase Auth (ID token verification via Firebase Admin SDK) |
 
 ---
 
@@ -39,13 +39,15 @@ Previously, the developer logged meals by pasting food data into a ChatGPT proje
 diet-backend/
 ├── src/
 │   ├── routes/             # Fastify route handlers (one folder per domain)
+│   │   ├── onboarding/     # Onboarding steps, goal suggestion, summary
 │   │   ├── user/           # GET, POST, PATCH /user
 │   │   ├── food-items/     # CRUD /food-items
 │   │   ├── recipes/        # CRUD /recipes
 │   │   ├── logs/           # Daily logs and meal entries /logs/:date
 │   │   ├── weight/         # Weight entries /weight
+│   │   ├── activity/       # Activity entries /activity
 │   │   ├── history/        # Weekly history and finalization /history
-│   │   ├── ai/             # Natural language meal parsing /ai/parse-meal
+│   │   ├── ai/             # Natural language meal/activity parsing
 │   │   └── app/            # App launch state /app/state
 │   ├── services/           # Business logic
 │   ├── repositories/       # Prisma data access layer
@@ -59,6 +61,7 @@ diet-backend/
 │   │   ├── food.prisma
 │   │   ├── logging.prisma
 │   │   ├── weight.prisma
+│   │   ├── activity.prisma
 │   │   └── week-summary.prisma
 │   └── migrations/
 ├── .env                    # Environment variables (never commit)
@@ -150,21 +153,39 @@ WeightEntry {
 }
 ```
 
+### ActivityEntry
+A logged exercise or activity for a given day, with estimated calories burned.
+
+```typescript
+ActivityEntry {
+  id: string
+  userId: string
+  date: Date                // date of the activity (source of truth, not createdAt)
+  description: string       // e.g. "45 min run"
+  kcalBurned: number
+  source: AI_ESTIMATED | WHOOP | MANUAL
+}
+```
+
 ### User
 Goals are stored directly on the User model (no separate UserGoals table).
 
 ```typescript
 User {
   id: string
+  firebaseUid: string       // unique; used to scope all data to authenticated user
   name: string
   sex: MALE | FEMALE
   height: number            // cm
   dateOfBirth: Date
+  activityLevel: SEDENTARY | LIGHTLY_ACTIVE  // used to compute TDEE activity multiplier
   targetWeightKg: number    // goal weight in kg
   dailyDeficitKcal: number  // target daily calorie deficit (e.g. 400)
   targetProtein: number     // g
   targetCarbs: number       // g
   targetFat: number         // g
+  createdAt: timestamp
+  updatedAt: timestamp
 }
 ```
 
@@ -198,9 +219,10 @@ WeekSummary {
 - **MealEntry macros are snapshotted** — historical logs must not change when food data is edited
 - **FoodItem is the atomic unit** — Recipes reference FoodItems with quantities
 - **Weight entries are date-keyed** — the `date` field is the source of truth everywhere, not `createdAt`. Backdating a weight entry works correctly throughout the system.
-- **Calorie target is dynamic** — derived from TDEE (Mifflin-St Jeor × 1.55 activity factor) minus deficit on first use; subsequently driven by `nextWeekTarget` from the last finalized `WeekSummary`
+- **Calorie target is dynamic** — derived from TDEE (Mifflin-St Jeor BMR × `activityLevel` multiplier) minus deficit on first use; subsequently driven by `nextWeekTarget` from the last finalized `WeekSummary`
+- **Effective daily calorie allowance** = base target + sum of `kcalBurned` from activity entries on that day
 - **Weekly finalization is explicit** — the app detects pending reviews on launch (`GET /app/state`) but the user triggers finalization. Finalization runs the deficit correction algorithm and optionally generates an AI insight.
-- **Auth is deferred** — MVP is single user, no login system yet
+- **Firebase Auth** — all routes require a Firebase ID token in `Authorization: Bearer <token>`. The token is verified server-side; `firebaseUid` scopes all data to the authenticated user.
 - **Split Prisma schema** — one `.prisma` file per domain model in `prisma/schema/`
 
 ---
@@ -265,7 +287,7 @@ WeekSummary {
 
 ## Calorie Target Algorithm
 
-1. **Initial target**: `TDEE − dailyDeficitKcal` (Mifflin-St Jeor BMR × 1.55 using latest logged weight)
+1. **Initial target**: `TDEE − dailyDeficitKcal` (Mifflin-St Jeor BMR × `activityLevel` multiplier using latest logged weight)
 2. **After each finalized week**: deficit is adjusted based on actual vs expected weight loss
    - Expected weekly loss = `(currentDeficit × 7) / 7700`
    - Shortfall = expected − actual loss
@@ -278,9 +300,12 @@ WeekSummary {
 ## Environment Variables
 
 ```
-DATABASE_URL=           # Neon PostgreSQL connection string
-ANTHROPIC_API_KEY=      # Claude API key
-PORT=3000               # optional, defaults to 3000
+DATABASE_URL=               # Neon PostgreSQL connection string
+ANTHROPIC_API_KEY=          # Claude API key
+FIREBASE_PROJECT_ID=        # Firebase project ID (for Admin SDK)
+FIREBASE_CLIENT_EMAIL=      # Firebase service account client email
+FIREBASE_PRIVATE_KEY=       # Firebase service account private key
+PORT=3000                   # optional, defaults to 3000
 ```
 
 ---
@@ -296,15 +321,16 @@ _nothing currently in flight_
 _nothing — backlog clear, add next features here_
 
 ### Recently Shipped
+- Firebase Auth — all routes now require Firebase ID token; `firebaseUid` scopes data per user
+- Backend-driven onboarding endpoints (`GET /onboarding/steps`, `POST /onboarding/goal-suggestion`, `POST /onboarding/summary`)
+- Dynamic `activityLevel` on User — replaces hardcoded 1.55 activity factor in TDEE calculation
 - Activity logging via LLM chat (`POST /ai/parse-activity`, `POST /activity`) — daily calorie allowance = base target + activityKcal
 - `GET /logs/:date/summary` now includes `activityKcal`, `targets.kcal`, and `targets.effectiveKcal`
-- Meal photo recognition included in the chat UX
+- Meal photo recognition included in the chat UX (`POST /ai/parse-meal` accepts image attachments)
 
 ### Deferred
-- Whoop API integration — replace `AI_ESTIMATED` activity entries with real strain/calorie data (`source: WHOOP`).
+- Whoop API integration — replace `AI_ESTIMATED` activity entries with real strain/calorie data (`source: WHOOP`)
 - Multi-week weight trend for calorie target adjustment (reduce week-to-week noise sensitivity)
-- Auth (Clerk or Supabase)
-- Whoop API integration for activity data
 - Barcode scanning
 - Personal food library management screen
 - Profile/Settings screen
