@@ -9,19 +9,34 @@ const weight: FastifyPluginAsync = async (fastify) => {
     makeUserRepository(fastify.db)
   )
 
-  // GET /weight
+  // GET /weight?from=2026-01-01&to=2026-04-08
   fastify.get('/', {
     schema: {
       tags: ['Weight'],
-      summary: 'List all weight entries',
+      summary: 'List weight entries',
+      querystring: {
+        type: 'object',
+        properties: {
+          from: { type: 'string', format: 'date', description: 'Start date (inclusive) — ISO date e.g. 2026-01-01' },
+          to: { type: 'string', format: 'date', description: 'End date (inclusive) — ISO date e.g. 2026-04-08' },
+        },
+      },
       response: {
         200: { type: 'array', items: { $ref: 'WeightEntry#' } },
+        400: { $ref: 'ErrorResponse#' },
         404: { $ref: 'ErrorResponse#' },
       },
     },
   }, async (request, reply) => {
+    const { from, to } = request.query as { from?: string; to?: string }
+    if ((from && !to) || (!from && to)) {
+      return reply.status(400).send({ error: 'Provide both from and to, or neither' })
+    }
     try {
-      return await service.listWeightEntries()
+      return await service.listWeightEntries(
+        from ? new Date(from) : undefined,
+        to ? new Date(to) : undefined,
+      )
     } catch {
       return reply.status(404).send({ error: 'User not found' })
     }

@@ -228,7 +228,7 @@ WeekSummary {
 | POST | `/logs/:date/entries` | Log a meal entry |
 | PATCH | `/logs/:date/entries/:entryId` | Update a meal entry |
 | DELETE | `/logs/:date/entries/:entryId` | Delete a meal entry |
-| GET | `/weight` | List all weight entries |
+| GET | `/weight` | List weight entries (supports `?from=&to=` date range) |
 | POST | `/weight` | Log a weight entry |
 | DELETE | `/weight/:id` | Delete a weight entry |
 | GET | `/history/weeks` | List weeks with data (paginated) |
@@ -285,7 +285,7 @@ Active iteration backlog — remove items as they ship, add new ones as they com
 _nothing currently in flight_
 
 ### Up Next
-1. **Weight date-range filter** — add `?from=&to=` query params to `GET /weight` so the Weight Tracker chart doesn't fetch all entries ever.
+_nothing — backlog clear, add next features here_
 
 ### Deferred
 - Activity logging via LLM chat — user describes a workout, LLM asks clarifying questions (distance, duration, effort), estimates kcal burned. Stored as `ActivityEntry` with `source: AI_ESTIMATED`. Whoop integration later replaces the estimate with real data (`source: WHOOP`). Daily calorie allowance = base TDEE + activity kcal logged that day.

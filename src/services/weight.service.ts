@@ -9,8 +9,9 @@ export function makeWeightService(weightRepo: WeightRepository, userRepo: UserRe
   }
 
   return {
-    async listWeightEntries() {
+    async listWeightEntries(from?: Date, to?: Date) {
       const user = await resolveUser()
+      if (from && to) return weightRepo.findInRange(user.id, from, to)
       return weightRepo.findAll(user.id)
     },
 
