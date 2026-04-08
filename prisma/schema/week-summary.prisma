@@ -1,0 +1,36 @@
+enum WeekStatus {
+  PENDING_REVIEW
+  FINALIZED
+}
+
+model WeekSummary {
+  id            String     @id @default(cuid())
+  userId        String
+  weekStart     DateTime   // Always a Monday
+
+  status        WeekStatus @default(PENDING_REVIEW)
+
+  // Calorie target active during this week
+  calorieTarget Int
+  // Algorithmically adjusted target for the following week (set on finalize)
+  nextWeekTarget Int?
+
+  // Actuals — populated on finalize
+  avgKcal       Float?
+  avgWeight     Float?  // kg
+  adherentDays  Int?
+  adherencePct  Float?
+  weightDelta   Float?  // actual kg change vs previous week avg
+  expectedDelta Float?  // expected kg change based on deficit alone
+
+  // LLM-generated insight (populated separately, may arrive after finalize)
+  aiInsight     String?
+
+  finalizedAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, weekStart])
+}

@@ -2,13 +2,22 @@ import { FastifyPluginAsync } from 'fastify'
 import { makeHistoryRepository } from '../../repositories/history.repository.js'
 import { makeWeightRepository } from '../../repositories/weight.repository.js'
 import { makeUserRepository } from '../../repositories/user.repository.js'
+import { makeWeekSummaryRepository } from '../../repositories/week-summary.repository.js'
 import { makeHistoryService } from '../../services/history.service.js'
+import { makeWeekSummaryService } from '../../services/week-summary.service.js'
 
 const history: FastifyPluginAsync = async (fastify) => {
-  const service = makeHistoryService(
-    makeHistoryRepository(fastify.db),
-    makeWeightRepository(fastify.db),
-    makeUserRepository(fastify.db)
+  const historyRepo = makeHistoryRepository(fastify.db)
+  const weightRepo = makeWeightRepository(fastify.db)
+  const userRepo = makeUserRepository(fastify.db)
+
+  const service = makeHistoryService(historyRepo, weightRepo, userRepo)
+  const weekSummaryService = makeWeekSummaryService(
+    makeWeekSummaryRepository(fastify.db),
+    historyRepo,
+    weightRepo,
+    userRepo,
+    fastify.ai
   )
 
   // GET /history/weeks?page=0&pageSize=10
@@ -101,6 +110,84 @@ const history: FastifyPluginAsync = async (fastify) => {
       if (e.message === 'USER_NOT_FOUND') {
         return reply.status(404).send({ error: 'User not found' })
       }
+      throw e
+    }
+  })
+
+  const weekSummaryResponse = {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      weekStart: { type: 'string' },
+      status: { type: 'string', enum: ['PENDING_REVIEW', 'FINALIZED'] },
+      calorieTarget: { type: 'integer' },
+      nextWeekTarget: { type: 'integer', nullable: true },
+      avgKcal: { type: 'number', nullable: true },
+      avgWeight: { type: 'number', nullable: true },
+      adherentDays: { type: 'integer', nullable: true },
+      adherencePct: { type: 'number', nullable: true },
+      weightDelta: { type: 'number', nullable: true },
+      expectedDelta: { type: 'number', nullable: true },
+      aiInsight: { type: 'string', nullable: true },
+      finalizedAt: { type: 'string', nullable: true },
+    },
+  }
+
+  const weekStartParam = {
+    type: 'object',
+    properties: {
+      weekStart: { type: 'string', format: 'date', description: 'Monday date e.g. 2026-04-07' },
+    },
+    required: ['weekStart'],
+  }
+
+  // POST /history/weeks/:weekStart/finalize
+  fastify.post('/weeks/:weekStart/finalize', {
+    schema: {
+      tags: ['History'],
+      summary: 'Finalize a past week — computes actuals and adjusts next week\'s calorie target',
+      params: weekStartParam,
+      response: {
+        200: weekSummaryResponse,
+        400: { $ref: 'ErrorResponse#' },
+        404: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
+    const { weekStart } = request.params as { weekStart: string }
+    try {
+      return await weekSummaryService.finalizeWeek(weekStart)
+    } catch (e: any) {
+      if (e.message === 'USER_NOT_FOUND') return reply.status(404).send({ error: 'User not found' })
+      if (e.message === 'ALREADY_FINALIZED') return reply.status(400).send({ error: 'Week already finalized' })
+      throw e
+    }
+  })
+
+  // POST /history/weeks/:weekStart/insight
+  fastify.post('/weeks/:weekStart/insight', {
+    schema: {
+      tags: ['History'],
+      summary: 'Generate an AI insight for a finalized week (async-friendly — call after finalize)',
+      params: weekStartParam,
+      response: {
+        200: {
+          type: 'object',
+          properties: { insight: { type: 'string' } },
+          required: ['insight'],
+        },
+        400: { $ref: 'ErrorResponse#' },
+        404: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
+    const { weekStart } = request.params as { weekStart: string }
+    try {
+      return await weekSummaryService.generateInsight(weekStart)
+    } catch (e: any) {
+      if (e.message === 'USER_NOT_FOUND') return reply.status(404).send({ error: 'User not found' })
+      if (e.message === 'WEEK_NOT_FOUND') return reply.status(404).send({ error: 'Week summary not found' })
+      if (e.message === 'NOT_FINALIZED') return reply.status(400).send({ error: 'Week must be finalized before generating insight' })
       throw e
     }
   })
