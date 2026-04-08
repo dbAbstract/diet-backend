@@ -1,11 +1,12 @@
 import { FastifyPluginAsync } from 'fastify'
 import { FoodSource } from '../../generated/prisma/client.js'
 import { makeFoodItemRepository } from '../../repositories/food-item.repository.js'
+import { makeUserRepository } from '../../repositories/user.repository.js'
 import { makeFoodItemService } from '../../services/food-item.service.js'
 
 const foodItems: FastifyPluginAsync = async (fastify) => {
   const repo = makeFoodItemRepository(fastify.db)
-  const service = makeFoodItemService(repo)
+  const service = makeFoodItemService(repo, makeUserRepository(fastify.db))
 
   // GET /food-items?search=xxx
   fastify.get('/', {
@@ -25,6 +26,32 @@ const foodItems: FastifyPluginAsync = async (fastify) => {
   }, async (request) => {
     const { search } = request.query as { search?: string }
     return service.listFoodItems(search)
+  })
+
+  // GET /food-items/recent?limit=10
+  fastify.get('/recent', {
+    schema: {
+      tags: ['Food Items'],
+      summary: 'List recently logged food items',
+      querystring: {
+        type: 'object',
+        properties: {
+          limit: { type: 'integer', default: 10, description: 'Max number of items to return' },
+        },
+      },
+      response: {
+        200: { type: 'array', items: { $ref: 'FoodItem#' } },
+        404: { $ref: 'ErrorResponse#' },
+      },
+    },
+  }, async (request, reply) => {
+    const { limit = 10 } = request.query as { limit?: number }
+    try {
+      return await service.listRecentFoodItems(limit)
+    } catch (e: any) {
+      if (e.message === 'USER_NOT_FOUND') return reply.status(404).send({ error: 'User not found' })
+      throw e
+    }
   })
 
   // GET /food-items/:id

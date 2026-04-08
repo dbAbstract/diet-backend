@@ -40,6 +40,27 @@ export function makeFoodItemRepository(db: PrismaClient) {
     delete(id: string) {
       return db.foodItem.delete({ where: { id } })
     },
+
+    async findRecent(userId: string, limit: number = 10) {
+      const recentEntries = await db.mealEntry.findMany({
+        where: {
+          dailyLog: { userId },
+          foodItemId: { not: null },
+        },
+        orderBy: { loggedAt: 'desc' },
+        distinct: ['foodItemId'],
+        take: limit,
+        select: { foodItemId: true },
+      })
+
+      const ids = recentEntries.map(e => e.foodItemId!)
+      if (ids.length === 0) return []
+
+      const items = await db.foodItem.findMany({ where: { id: { in: ids } } })
+
+      // Restore recency order
+      return ids.map(id => items.find(item => item.id === id)!).filter(Boolean)
+    },
   }
 }
 

@@ -213,6 +213,7 @@ WeekSummary {
 | GET | `/user` | Get user profile and goals |
 | PATCH | `/user` | Update user profile or goals |
 | GET | `/food-items` | List food items (supports `?search=`) |
+| GET | `/food-items/recent` | Recently logged food items (supports `?limit=`) |
 | GET | `/food-items/:id` | Get food item by ID |
 | POST | `/food-items` | Create food item |
 | PATCH | `/food-items/:id` | Update food item |
@@ -284,8 +285,7 @@ Active iteration backlog — remove items as they ship, add new ones as they com
 _nothing currently in flight_
 
 ### Up Next
-1. **Recent foods endpoint** — `GET /food-items/recent` for the Log Food screen's recent foods row. Query `MealEntry` history and surface the most recently used distinct food items.
-2. **Weight date-range filter** — add `?from=&to=` query params to `GET /weight` so the Weight Tracker chart doesn't fetch all entries ever.
+1. **Weight date-range filter** — add `?from=&to=` query params to `GET /weight` so the Weight Tracker chart doesn't fetch all entries ever.
 
 ### Deferred
 - Activity logging via LLM chat — user describes a workout, LLM asks clarifying questions (distance, duration, effort), estimates kcal burned. Stored as `ActivityEntry` with `source: AI_ESTIMATED`. Whoop integration later replaces the estimate with real data (`source: WHOOP`). Daily calorie allowance = base TDEE + activity kcal logged that day.
