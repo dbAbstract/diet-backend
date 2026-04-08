@@ -209,9 +209,13 @@ WeekSummary {
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/user` | Create user (first-time setup) |
+| GET | `/onboarding/steps` | Ordered polymorphic step definitions — mobile renders based on `type` discriminator |
+| POST | `/onboarding/goal-suggestion` | BMI-based target weight suggestion + body fat context |
+| POST | `/onboarding/summary` | TDEE, daily calorie target, weekly loss, suggested macros |
+| POST | `/user` | Create user (end of onboarding) |
 | GET | `/user` | Get user profile and goals |
 | PATCH | `/user` | Update user profile or goals |
+| GET | `/user/activity-levels` | Activity level options with descriptions |
 | GET | `/food-items` | List food items (supports `?search=`) |
 | GET | `/food-items/recent` | Recently logged food items (supports `?limit=`) |
 | GET | `/food-items/:id` | Get food item by ID |
