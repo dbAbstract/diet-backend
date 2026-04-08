@@ -276,13 +276,23 @@ PORT=3000               # optional, defaults to 3000
 
 ---
 
-## Future / Deferred Features
+## TODO
 
+Active iteration backlog — remove items as they ship, add new ones as they come up.
+
+### In Progress
+_nothing currently in flight_
+
+### Up Next
+1. **Recent foods endpoint** — `GET /food-items/recent` for the Log Food screen's recent foods row. Query `MealEntry` history and surface the most recently used distinct food items.
+2. **Weight date-range filter** — add `?from=&to=` query params to `GET /weight` so the Weight Tracker chart doesn't fetch all entries ever.
+
+### Deferred
+- Activity logging via LLM chat — user describes a workout, LLM asks clarifying questions (distance, duration, effort), estimates kcal burned. Stored as `ActivityEntry` with `source: AI_ESTIMATED`. Whoop integration later replaces the estimate with real data (`source: WHOOP`). Daily calorie allowance = base TDEE + activity kcal logged that day.
+- Multi-week weight trend for calorie target adjustment (reduce week-to-week noise sensitivity)
 - Auth (Clerk or Supabase)
-- Multi-week weight trend for calorie target adjustment (reduce noise sensitivity)
 - Whoop API integration for activity data
 - Barcode scanning
 - Meal photo recognition
 - Personal food library management screen
 - Profile/Settings screen
-- Configurable activity factor (currently hardcoded at 1.55)
