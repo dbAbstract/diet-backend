@@ -1,0 +1,2786 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Diet API",
+    "description": "Backend API for the Diet personal tracking app",
+    "version": "1.0.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API key — set in .env as API_KEY"
+      }
+    },
+    "schemas": {
+      "def-0": {
+        "type": "object",
+        "properties": {
+          "kcal": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "fiber": {
+            "type": "number"
+          }
+        },
+        "title": "Macros"
+      },
+      "def-1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "servingSize": {
+            "type": "number"
+          },
+          "servingLabel": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "CUSTOM",
+              "AI_GENERATED"
+            ]
+          },
+          "kcal": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "fiber": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "title": "FoodItem"
+      },
+      "def-2": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "recipeId": {
+            "type": "string"
+          },
+          "foodItemId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "foodItem": {
+            "$ref": "#/components/schemas/def-1"
+          }
+        },
+        "title": "RecipeIngredient"
+      },
+      "def-3": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/def-2"
+            }
+          },
+          "macros": {
+            "$ref": "#/components/schemas/def-0"
+          }
+        },
+        "title": "Recipe"
+      },
+      "def-4": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dailyLogId": {
+            "type": "string"
+          },
+          "mealType": {
+            "type": "string",
+            "enum": [
+              "BREAKFAST",
+              "LUNCH",
+              "DINNER",
+              "SNACK"
+            ]
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "foodItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "recipeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "kcal": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "fiber": {
+            "type": "number"
+          },
+          "loggedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "title": "MealEntry"
+      },
+      "def-5": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/def-4"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "title": "DailyLog"
+      },
+      "def-6": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "kcalBurned": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "AI_ESTIMATED",
+              "WHOOP",
+              "MANUAL"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "title": "ActivityEntry"
+      },
+      "def-7": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "durationMinutes": {
+            "type": "number"
+          },
+          "kcalBurned": {
+            "type": "number"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          }
+        },
+        "title": "ParsedActivity"
+      },
+      "def-8": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/def-0"
+          },
+          "activityKcal": {
+            "type": "number"
+          },
+          "targets": {
+            "type": "object",
+            "properties": {
+              "kcal": {
+                "type": "number"
+              },
+              "effectiveKcal": {
+                "type": "number"
+              },
+              "protein": {
+                "type": "number"
+              },
+              "carbs": {
+                "type": "number"
+              },
+              "fat": {
+                "type": "number"
+              }
+            }
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/def-4"
+            }
+          },
+          "activityEntries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/def-6"
+            }
+          }
+        },
+        "title": "DailySummary"
+      },
+      "def-9": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ]
+          },
+          "height": {
+            "type": "number"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "activityLevel": {
+            "type": "string",
+            "enum": [
+              "SEDENTARY",
+              "LIGHTLY_ACTIVE"
+            ]
+          },
+          "targetWeightKg": {
+            "type": "number"
+          },
+          "dailyDeficitKcal": {
+            "type": "number"
+          },
+          "targetProtein": {
+            "type": "number"
+          },
+          "targetCarbs": {
+            "type": "number"
+          },
+          "targetFat": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "title": "User"
+      },
+      "def-10": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "bodyFatPct": {
+            "type": "number",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "title": "WeightEntry"
+      },
+      "def-11": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "servingSize": {
+            "type": "number"
+          },
+          "servingLabel": {
+            "type": "string"
+          },
+          "kcal": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "fiber": {
+            "type": "number"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          }
+        },
+        "title": "ParsedFood"
+      },
+      "def-12": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "title": "ErrorResponse"
+      }
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/activity/": {
+      "get": {
+        "summary": "List activity entries",
+        "tags": [
+          "Activity"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "description": "Start date (inclusive)"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "description": "End date (inclusive)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/def-6"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Log an activity entry manually",
+        "tags": [
+          "Activity"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "description",
+                  "kcalBurned"
+                ],
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "kcalBurned": {
+                    "type": "number"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "ISO date — defaults to today"
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "AI_ESTIMATED",
+                      "WHOOP",
+                      "MANUAL"
+                    ],
+                    "default": "MANUAL"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-6"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activity/{id}": {
+      "delete": {
+        "summary": "Delete an activity entry",
+        "tags": [
+          "Activity"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          }
+        }
+      }
+    },
+    "/ai/parse-meal": {
+      "post": {
+        "summary": "Parse a meal from text, image, or both",
+        "tags": [
+          "AI"
+        ],
+        "description": "Send a conversation history. User messages can include an optional base64 image (first turn only). Returns parsed macro data or a clarifying question. Client maintains message history across turns.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "messages"
+                ],
+                "properties": {
+                  "messages": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "role",
+                        "content"
+                      ],
+                      "properties": {
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "user",
+                            "assistant"
+                          ]
+                        },
+                        "content": {
+                          "type": "string",
+                          "description": "Text description — can be empty string if image is provided"
+                        },
+                        "image": {
+                          "type": "string",
+                          "description": "Base64-encoded image data, user messages only, first turn only"
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "enum": [
+                            "image/jpeg",
+                            "image/png",
+                            "image/webp",
+                            "image/gif"
+                          ],
+                          "description": "Required when image is provided"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "description": "Macro data successfully parsed",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "parsed"
+                          ]
+                        },
+                        "food": {
+                          "$ref": "#/components/schemas/def-11"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "description": "More information needed",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "clarification"
+                          ]
+                        },
+                        "question": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai/parse-activity": {
+      "post": {
+        "summary": "Parse a natural language activity description",
+        "tags": [
+          "AI"
+        ],
+        "description": "Send a conversation history. Returns either estimated kcal burned or a clarifying question. The client is responsible for maintaining message history across turns.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "messages"
+                ],
+                "properties": {
+                  "messages": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "role",
+                        "content"
+                      ],
+                      "properties": {
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "user",
+                            "assistant"
+                          ]
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "description": "Activity successfully parsed",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "parsed"
+                          ]
+                        },
+                        "activity": {
+                          "$ref": "#/components/schemas/def-7"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "description": "More information needed",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "clarification"
+                          ]
+                        },
+                        "question": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/state": {
+      "get": {
+        "summary": "App launch state — current week target and any pending week review",
+        "tags": [
+          "App"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currentWeek": {
+                      "type": "object",
+                      "properties": {
+                        "weekStart": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "calorieTarget": {
+                          "type": "integer",
+                          "description": "Active kcal target for this week"
+                        }
+                      },
+                      "required": [
+                        "weekStart",
+                        "calorieTarget"
+                      ]
+                    },
+                    "pendingReview": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "weekStart": {
+                              "type": "string",
+                              "format": "date"
+                            },
+                            "daysLogged": {
+                              "type": "integer"
+                            },
+                            "avgKcal": {
+                              "type": "integer",
+                              "nullable": true
+                            },
+                            "avgWeight": {
+                              "type": "number",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "weekStart",
+                            "daysLogged"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "currentWeek",
+                    "pendingReview"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/example/": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/food-items/": {
+      "get": {
+        "summary": "List all food items",
+        "tags": [
+          "Food Items"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "description": "Filter by name (case-insensitive)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/def-1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a food item",
+        "tags": [
+          "Food Items"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "servingSize",
+                  "servingLabel",
+                  "kcal",
+                  "protein",
+                  "carbs",
+                  "fat",
+                  "fiber"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "servingSize": {
+                    "type": "number",
+                    "description": "In grams or ml"
+                  },
+                  "servingLabel": {
+                    "type": "string",
+                    "example": "100g"
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "CUSTOM",
+                      "AI_GENERATED"
+                    ],
+                    "default": "CUSTOM"
+                  },
+                  "kcal": {
+                    "type": "number"
+                  },
+                  "protein": {
+                    "type": "number"
+                  },
+                  "carbs": {
+                    "type": "number"
+                  },
+                  "fat": {
+                    "type": "number"
+                  },
+                  "fiber": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/food-items/recent": {
+      "get": {
+        "summary": "List recently logged food items",
+        "tags": [
+          "Food Items"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Max number of items to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/def-1"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/food-items/{id}": {
+      "get": {
+        "summary": "Get a food item by ID",
+        "tags": [
+          "Food Items"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a food item",
+        "tags": [
+          "Food Items"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "servingSize": {
+                    "type": "number"
+                  },
+                  "servingLabel": {
+                    "type": "string"
+                  },
+                  "kcal": {
+                    "type": "number"
+                  },
+                  "protein": {
+                    "type": "number"
+                  },
+                  "carbs": {
+                    "type": "number"
+                  },
+                  "fat": {
+                    "type": "number"
+                  },
+                  "fiber": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a food item",
+        "tags": [
+          "Food Items"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/history/weeks": {
+      "get": {
+        "summary": "List weeks that have logged data, paginated",
+        "tags": [
+          "History"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "description": "Zero-based page index"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "in": "query",
+            "name": "pageSize",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "page": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Approximate total number of weeks"
+                    },
+                    "weeks": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Monday date of each week"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/history/weeks/{weekStart}": {
+      "get": {
+        "summary": "Get detailed summary for a week — must be a Monday date",
+        "tags": [
+          "History"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "path",
+            "name": "weekStart",
+            "required": true,
+            "description": "Monday date e.g. 2026-04-06"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "weekStart": {
+                      "type": "string"
+                    },
+                    "weekEnd": {
+                      "type": "string"
+                    },
+                    "dailyCalorieTarget": {
+                      "type": "number",
+                      "description": "TDEE minus daily deficit, based on latest weight"
+                    },
+                    "days": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string"
+                          },
+                          "kcal": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "protein": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "carbs": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "fat": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "weight": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "bodyFatPct": {
+                            "type": "number",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "properties": {
+                        "avgKcal": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "avgWeight": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "weightChange": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "vs previous week average (kg)"
+                        },
+                        "daysLogged": {
+                          "type": "integer"
+                        },
+                        "adherentDays": {
+                          "type": "integer",
+                          "description": "Days at or under calorie target"
+                        },
+                        "adherencePct": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/history/weeks/{weekStart}/finalize": {
+      "post": {
+        "summary": "Finalize a past week — computes actuals and adjusts next week's calorie target",
+        "tags": [
+          "History"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "path",
+            "name": "weekStart",
+            "required": true,
+            "description": "Monday date e.g. 2026-04-07"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "weekStart": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING_REVIEW",
+                        "FINALIZED"
+                      ]
+                    },
+                    "calorieTarget": {
+                      "type": "integer"
+                    },
+                    "nextWeekTarget": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "avgKcal": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "avgWeight": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "adherentDays": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "adherencePct": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "weightDelta": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "expectedDelta": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "aiInsight": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "finalizedAt": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/history/weeks/{weekStart}/insight": {
+      "post": {
+        "summary": "Generate an AI insight for a finalized week (async-friendly — call after finalize)",
+        "tags": [
+          "History"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "path",
+            "name": "weekStart",
+            "required": true,
+            "description": "Monday date e.g. 2026-04-07"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "insight": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "insight"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logs/{date}": {
+      "get": {
+        "summary": "Get the daily log for a date — creates one if it does not exist",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "description": "ISO date e.g. 2026-04-06"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-5"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logs/{date}/summary": {
+      "get": {
+        "summary": "Get daily macro totals vs targets",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "description": "ISO date e.g. 2026-04-06"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-8"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logs/{date}/entries": {
+      "post": {
+        "summary": "Log a meal entry for a date",
+        "tags": [
+          "Logs"
+        ],
+        "description": "Provide either foodItemId or recipeId, not both.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "mealType",
+                  "quantity"
+                ],
+                "properties": {
+                  "mealType": {
+                    "type": "string",
+                    "enum": [
+                      "BREAKFAST",
+                      "LUNCH",
+                      "DINNER",
+                      "SNACK"
+                    ]
+                  },
+                  "quantity": {
+                    "type": "number",
+                    "description": "Number of servings"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "foodItemId": {
+                    "type": "string"
+                  },
+                  "recipeId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "description": "ISO date e.g. 2026-04-06"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-4"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logs/{date}/entries/{entryId}": {
+      "patch": {
+        "summary": "Update a meal entry",
+        "tags": [
+          "Logs"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mealType": {
+                    "type": "string",
+                    "enum": [
+                      "BREAKFAST",
+                      "LUNCH",
+                      "DINNER",
+                      "SNACK"
+                    ]
+                  },
+                  "quantity": {
+                    "type": "number"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "path",
+            "name": "date",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "entryId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-4"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a meal entry",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "path",
+            "name": "date",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "entryId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/steps": {
+      "get": {
+        "summary": "Ordered list of onboarding step definitions — mobile renders based on type discriminator",
+        "tags": [
+          "Onboarding"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "type",
+                      "title"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "TEXT_INPUT",
+                          "DATE_INPUT",
+                          "NUMBER_INPUT",
+                          "SINGLE_SELECT",
+                          "RANGE_PICKER",
+                          "GOAL_SUGGESTION",
+                          "SUMMARY"
+                        ]
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "subtitle": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/goal-suggestion": {
+      "post": {
+        "summary": "Returns BMI-based target weight suggestion and body fat context for the goal weight step",
+        "tags": [
+          "Onboarding"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sex",
+                  "height",
+                  "dateOfBirth",
+                  "currentWeightKg"
+                ],
+                "properties": {
+                  "sex": {
+                    "type": "string",
+                    "enum": [
+                      "MALE",
+                      "FEMALE"
+                    ]
+                  },
+                  "height": {
+                    "type": "number",
+                    "description": "cm"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "currentWeightKg": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "suggestedTargetKg": {
+                      "type": "number"
+                    },
+                    "current": {
+                      "type": "object",
+                      "properties": {
+                        "weightKg": {
+                          "type": "number"
+                        },
+                        "bmi": {
+                          "type": "number"
+                        },
+                        "bodyFat": {
+                          "type": "object",
+                          "properties": {
+                            "estimatedPct": {
+                              "type": "number"
+                            },
+                            "range": {
+                              "type": "object",
+                              "properties": {
+                                "min": {
+                                  "type": "number"
+                                },
+                                "max": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            "category": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "target": {
+                      "type": "object",
+                      "properties": {
+                        "weightKg": {
+                          "type": "number"
+                        },
+                        "bmi": {
+                          "type": "number"
+                        },
+                        "bodyFat": {
+                          "type": "object",
+                          "properties": {
+                            "estimatedPct": {
+                              "type": "number"
+                            },
+                            "range": {
+                              "type": "object",
+                              "properties": {
+                                "min": {
+                                  "type": "number"
+                                },
+                                "max": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            "category": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/summary": {
+      "post": {
+        "summary": "Calculates TDEE, daily calorie target and suggested macros — shown on the final summary step before POST /user",
+        "tags": [
+          "Onboarding"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sex",
+                  "height",
+                  "dateOfBirth",
+                  "currentWeightKg",
+                  "activityLevel",
+                  "dailyDeficitKcal"
+                ],
+                "properties": {
+                  "sex": {
+                    "type": "string",
+                    "enum": [
+                      "MALE",
+                      "FEMALE"
+                    ]
+                  },
+                  "height": {
+                    "type": "number",
+                    "description": "cm"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "currentWeightKg": {
+                    "type": "number"
+                  },
+                  "activityLevel": {
+                    "type": "string",
+                    "enum": [
+                      "SEDENTARY",
+                      "LIGHTLY_ACTIVE"
+                    ]
+                  },
+                  "dailyDeficitKcal": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tdee": {
+                      "type": "number",
+                      "description": "Total daily energy expenditure"
+                    },
+                    "dailyCalorieTarget": {
+                      "type": "number",
+                      "description": "TDEE minus deficit"
+                    },
+                    "weeklyLossKg": {
+                      "type": "number",
+                      "description": "Expected weekly weight loss at this deficit"
+                    },
+                    "suggestedMacros": {
+                      "type": "object",
+                      "properties": {
+                        "protein": {
+                          "type": "number",
+                          "description": "g"
+                        },
+                        "carbs": {
+                          "type": "number",
+                          "description": "g"
+                        },
+                        "fat": {
+                          "type": "number",
+                          "description": "g"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recipes/": {
+      "get": {
+        "summary": "List all recipes with computed macros",
+        "tags": [
+          "Recipes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/def-3"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a recipe",
+        "tags": [
+          "Recipes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "ingredients"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "foodItemId",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "foodItemId": {
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "type": "number",
+                          "description": "Number of servings of this food item"
+                        }
+                      }
+                    },
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-3"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recipes/{id}": {
+      "get": {
+        "summary": "Get a recipe by ID with computed macros",
+        "tags": [
+          "Recipes"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-3"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a recipe name or replace all ingredients",
+        "tags": [
+          "Recipes"
+        ],
+        "description": "Sending ingredients replaces the entire ingredient list.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "foodItemId",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "foodItemId": {
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "type": "number",
+                          "description": "Number of servings of this food item"
+                        }
+                      }
+                    },
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-3"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a recipe",
+        "tags": [
+          "Recipes"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/activity-levels": {
+      "get": {
+        "summary": "List activity levels with descriptions — use during onboarding to populate the selection screen",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "level": {
+                        "type": "string",
+                        "enum": [
+                          "SEDENTARY",
+                          "LIGHTLY_ACTIVE"
+                        ]
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "multiplier": {
+                        "type": "number"
+                      },
+                      "description": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/": {
+      "get": {
+        "summary": "Get the current user profile and goals",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-9"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create the user profile (run once on setup)",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "sex",
+                  "height",
+                  "dateOfBirth",
+                  "activityLevel",
+                  "targetWeightKg",
+                  "dailyDeficitKcal",
+                  "targetProtein",
+                  "targetCarbs",
+                  "targetFat"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "sex": {
+                    "type": "string",
+                    "enum": [
+                      "MALE",
+                      "FEMALE"
+                    ]
+                  },
+                  "height": {
+                    "type": "number",
+                    "description": "Height in cm"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "ISO date e.g. 1990-01-01"
+                  },
+                  "activityLevel": {
+                    "type": "string",
+                    "enum": [
+                      "SEDENTARY",
+                      "LIGHTLY_ACTIVE"
+                    ],
+                    "description": "Your baseline daily activity level — see GET /user/activity-levels"
+                  },
+                  "targetWeightKg": {
+                    "type": "number",
+                    "description": "Goal weight in kg"
+                  },
+                  "dailyDeficitKcal": {
+                    "type": "number",
+                    "description": "Daily calorie deficit target (e.g. 400)"
+                  },
+                  "targetProtein": {
+                    "type": "number",
+                    "description": "In grams"
+                  },
+                  "targetCarbs": {
+                    "type": "number",
+                    "description": "In grams"
+                  },
+                  "targetFat": {
+                    "type": "number",
+                    "description": "In grams"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-9"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update user profile or goals",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "sex": {
+                    "type": "string",
+                    "enum": [
+                      "MALE",
+                      "FEMALE"
+                    ]
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "activityLevel": {
+                    "type": "string",
+                    "enum": [
+                      "SEDENTARY",
+                      "LIGHTLY_ACTIVE"
+                    ]
+                  },
+                  "targetWeightKg": {
+                    "type": "number"
+                  },
+                  "dailyDeficitKcal": {
+                    "type": "number"
+                  },
+                  "targetProtein": {
+                    "type": "number"
+                  },
+                  "targetCarbs": {
+                    "type": "number"
+                  },
+                  "targetFat": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-9"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/weight/": {
+      "get": {
+        "summary": "List weight entries",
+        "tags": [
+          "Weight"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "description": "Start date (inclusive) — ISO date e.g. 2026-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "description": "End date (inclusive) — ISO date e.g. 2026-04-08"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/def-10"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Log a weight entry",
+        "tags": [
+          "Weight"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "weight"
+                ],
+                "properties": {
+                  "weight": {
+                    "type": "number",
+                    "description": "Weight in kg"
+                  },
+                  "bodyFatPct": {
+                    "type": "number",
+                    "description": "Body fat percentage — optional, log when available"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "ISO date — defaults to today if omitted"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-10"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-12"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/weight/{id}": {
+      "delete": {
+        "summary": "Delete a weight entry",
+        "tags": [
+          "Weight"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}

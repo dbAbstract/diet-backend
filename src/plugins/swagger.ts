@@ -26,4 +26,8 @@ export default fp(async (fastify) => {
   await fastify.register(scalarReference, {
     routePrefix: '/docs',
   })
+
+  fastify.get('/documentation/json', { schema: { hide: true } }, async () => {
+    return fastify.swagger()
+  })
 })
