@@ -27,7 +27,7 @@ Previously, the developer logged meals by pasting food data into a ChatGPT proje
 | Database | PostgreSQL via Neon (free managed) |
 | ORM | Prisma (split schema — one file per model in `prisma/schema/`) |
 | AI | Anthropic API (claude-sonnet-4-6) |
-| API Docs | Swagger UI via `@fastify/swagger` at `/documentation` |
+| API Docs | Scalar API reference via `@scalar/fastify-api-reference` at `/docs` |
 | Hosting | MacBook Pro M4 + Cloudflare Tunnel |
 | Auth | Firebase Auth (ID token verification via Firebase Admin SDK) |
 
