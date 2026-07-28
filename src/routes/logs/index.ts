@@ -28,6 +28,38 @@ const logs: FastifyPluginAsync = async (fastify) => {
     return makeDailyLogService(logRepo, foodRepo, recipeRepo, userRepo, activityRepo, weekSummaryRepo, weightRepo, firebaseUid)
   }
 
+  // GET /logs/recent?limit=20
+  fastify.get('/recent', {
+    schema: {
+      tags: ['Logs'],
+      summary: 'Recently consumed meals — food items and recipes unified, sorted by last logged',
+      querystring: {
+        type: 'object',
+        properties: {
+          limit: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
+        },
+      },
+      response: {
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', enum: ['food_item', 'recipe'] },
+              lastLoggedAt: { type: 'string', format: 'date-time' },
+              foodItem: { $ref: 'FoodItem#' },
+              recipe: { $ref: 'Recipe#' },
+            },
+            required: ['type', 'lastLoggedAt'],
+          },
+        },
+      },
+    },
+  }, async (request) => {
+    const { limit = 20 } = request.query as { limit?: number }
+    return makeService(request.firebaseUid).getRecentMeals(limit)
+  })
+
   // GET /logs/:date
   fastify.get('/:date', {
     schema: {

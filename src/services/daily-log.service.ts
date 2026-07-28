@@ -116,6 +116,11 @@ export function makeDailyLogService(
       return logRepo.updateEntry(entryId, data)
     },
 
+    async getRecentMeals(limit: number) {
+      const user = await resolveUser()
+      return logRepo.findRecentMeals(user.id, limit)
+    },
+
     async deleteMealEntry(entryId: string) {
       const entry = await logRepo.findEntryById(entryId)
       if (!entry) throw new Error('NOT_FOUND')

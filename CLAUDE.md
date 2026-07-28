@@ -249,6 +249,7 @@ WeekSummary {
 | POST | `/recipes` | Create recipe |
 | PATCH | `/recipes/:id` | Update recipe |
 | DELETE | `/recipes/:id` | Delete recipe |
+| GET | `/logs/recent` | Recently consumed meals — food items and recipes unified, sorted by last logged (supports `?limit=`) |
 | GET | `/logs/:date` | Get daily log (auto-creates if missing) |
 | GET | `/logs/:date/summary` | Daily macro totals vs targets |
 | POST | `/logs/:date/entries` | Log a meal entry |
